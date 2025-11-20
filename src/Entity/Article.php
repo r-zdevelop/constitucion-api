@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ArticleRepository;
+// concordances will be stored as JSON (array) on the Article now
 
-#[ORM\Entity(repositoryClass: \App\Repository\ArticleRepository::class)]
+#[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\Table(name: 'articles')]
 #[ORM\UniqueConstraint(name: 'unique_article', columns: ['document_id', 'article_number'])]
 class Article
@@ -42,11 +44,14 @@ class Article
     #[ORM\Column(type: 'string', length: 32)]
     private string $status;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
+
+    #[ORM\Column(type: 'json')]
+    private array $concordances = [];
 
     public function __construct(LegalDocument $document, int $articleNumber, string $content, ?string $title = null)
     {
@@ -57,6 +62,7 @@ class Article
         $this->status = 'active';
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->concordances = [];
     }
 
     public function getId(): int
@@ -65,4 +71,64 @@ class Article
     }
 
     // ... getters/setters, updateContent() method that triggers history recording in service layer
+    /**
+     * Get concordances stored as an array (JSON column).
+     * Each concordance is represented as an associative array.
+     *
+     * @return array<int, array<string,mixed>>
+     */
+    public function getConcordances(): array
+    {
+        return $this->concordances;
+    }
+
+    /**
+     * Append a concordance entry (associative array) to the concordances JSON.
+     * This keeps a simple array-of-objects structure.
+     */
+    public function addConcordance(array $concordance): void
+    {
+        // simple append; callers are responsible for shape/validation
+        $this->concordances[] = $concordance;
+    }
+
+    public function setNumber(int $articleNumber): void
+    {
+        $this->articleNumber = $articleNumber;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function setContent(string $content): void
+    {
+        $this->content = $content;
+    }
+
+    public function setChapter(?string $chapter): void
+    {
+        $this->chapter = $chapter;
+    }
+
+    public function setNotes(?string $notes): void
+    {
+        $this->notes = $notes;
+    }
+
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getContent()
+    {
+        return $this->content;
+    }
 }

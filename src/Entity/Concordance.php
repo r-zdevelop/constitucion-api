@@ -37,4 +37,8 @@ class Concordance
     }
 
     // ... getters
+    public function setArticle(Article $article): void
+    {
+        $this->article = $article;
+    }
 }

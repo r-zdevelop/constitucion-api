@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Constitution API{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    {% endblock %}
+
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-purple-600 flex flex-col">
+    {# Header - Mobile First #}
+    <header class="bg-white/10 backdrop-blur-md shadow-lg">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <h1 class="text-white text-xl sm:text-2xl md:text-3xl font-semibold">
+                {{ project_name|default('Constitution API') }}
+            </h1>
+        </div>
+    </header>
+
+    {# Main Content #}
+    <main class="flex-1 flex items-center justify-center py-6 sm:py-8 md:py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            {% block body %}{% endblock %}
+        </div>
+    </main>
+
+    {# Footer #}
+    <footer class="bg-white/10 backdrop-blur-md py-4 text-center">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-white text-sm sm:text-base">
+                &copy; {{ "now"|date("Y") }} Constitution API - Legal Document Management System
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -13,6 +13,27 @@ interface ArticleRepositoryInterface
     public function findByNumber(int $documentId, int $articleNumber): ?Article;
 
     /**
+     * Find all articles.
+     *
+     * @return Article[]
+     */
+    public function findAll(): array;
+
+    /**
+     * Find all distinct chapters (non-null).
+     *
+     * @return string[] Array of chapter names
+     */
+    public function findAllChapters(): array;
+
+    /**
+     * Find articles by chapter.
+     *
+     * @return Article[]
+     */
+    public function findByChapter(string $chapter): array;
+
+    /**
      * Full text search. Query sanitized by Doctrine parameter binding.
      *
      * @return Article[]

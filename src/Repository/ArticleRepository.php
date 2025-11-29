@@ -41,6 +41,49 @@ final class ArticleRepository extends ServiceEntityRepository implements Article
     }
 
     /**
+     * Find all articles ordered by article number.
+     *
+     * @return Article[]
+     */
+    public function findAll(): array
+    {
+        return $this->findBy([], ['articleNumber' => 'ASC']);
+    }
+
+    /**
+     * Find all distinct chapters (non-null, ordered alphabetically).
+     *
+     * @return string[] Array of chapter names
+     */
+    public function findAllChapters(): array
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->select('DISTINCT a.chapter')
+            ->where($qb->expr()->isNotNull('a.chapter'))
+            ->andWhere($qb->expr()->neq('a.chapter', ':empty'))
+            ->setParameter('empty', '')
+            ->orderBy('a.chapter', 'ASC');
+
+        $result = $qb->getQuery()->getResult();
+
+        // Extract scalar values from result array
+        return array_map(fn(array $row): string => $row['chapter'], $result);
+    }
+
+    /**
+     * Find articles by chapter, ordered by article number.
+     *
+     * @return Article[]
+     */
+    public function findByChapter(string $chapter): array
+    {
+        return $this->findBy(
+            ['chapter' => $chapter],
+            ['articleNumber' => 'ASC']
+        );
+    }
+
+    /**
      * Full text search for articles.
      *
      * @return Article[]

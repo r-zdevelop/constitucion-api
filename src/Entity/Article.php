@@ -70,7 +70,56 @@ class Article
         return $this->id;
     }
 
-    // ... getters/setters, updateContent() method that triggers history recording in service layer
+    public function getDocument(): LegalDocument
+    {
+        return $this->document;
+    }
+
+    public function getSection(): ?DocumentSection
+    {
+        return $this->section;
+    }
+
+    public function getArticleNumber(): int
+    {
+        return $this->articleNumber;
+    }
+
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function getChapter(): ?string
+    {
+        return $this->chapter;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
     /**
      * Get concordances stored as an array (JSON column).
      * Each concordance is represented as an associative array.
@@ -125,10 +174,5 @@ class Article
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getContent()
-    {
-        return $this->content;
     }
 }

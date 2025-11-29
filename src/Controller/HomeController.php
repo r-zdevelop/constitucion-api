@@ -25,8 +25,8 @@ final class HomeController extends AbstractController
     public function index(): Response
     {
         return $this->render('home/index.html.twig', [
-            'project_name' => 'Constitution API',
-            'project_description' => 'Legal Document Management System',
+            'project_name' => 'API de Constitución',
+            'project_description' => 'Sistema de Gestión de Documentos Legales',
         ]);
     }
 }

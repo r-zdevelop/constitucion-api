@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\ArticleRepositoryInterface;
+use App\Service\ChapterOrderService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,12 +20,13 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ArticleController extends AbstractController
 {
     /**
-     * Constructor injection for repository dependency
+     * Constructor injection for dependencies
      *
      * Following Dependency Inversion Principle: depend on abstraction (interface), not concrete class.
      */
     public function __construct(
-        private readonly ArticleRepositoryInterface $articleRepository
+        private readonly ArticleRepositoryInterface $articleRepository,
+        private readonly ChapterOrderService $chapterOrderService
     ) {
     }
 
@@ -41,6 +43,9 @@ final class ArticleController extends AbstractController
     {
         // Get all available chapters for the filter dropdown
         $allChapters = $this->articleRepository->findAllChapters();
+
+        // Sort chapters by official constitutional order
+        $allChapters = $this->chapterOrderService->sortChapters($allChapters);
 
         // Get the selected chapter from query string (sanitized by Symfony)
         $selectedChapter = $request->query->get('chapter', '');
@@ -67,23 +72,24 @@ final class ArticleController extends AbstractController
      * Group articles by their chapter.
      *
      * Articles without a chapter are grouped under 'No Chapter'.
+     * Article order (by article number) is preserved within each chapter group.
      *
-     * @param Article[] $articles
-     * @return array<string, Article[]>
+     * @param Article[] $articles Already ordered by article number from repository
+     * @return array<string, Article[]> Chapters sorted by official constitutional order, articles by number within each chapter
      */
     private function groupArticlesByChapter(array $articles): array
     {
         $grouped = [];
 
+        // Group articles while preserving order (articles already ordered by articleNumber)
         foreach ($articles as $article) {
-            $chapter = $article->getChapter() ?? 'No Chapter';
+            $chapter = $article->getChapter() ?? 'Sin Capítulo';
             $grouped[$chapter] ??= [];
             $grouped[$chapter][] = $article;
         }
 
-        // Sort by chapter name
-        ksort($grouped);
-
-        return $grouped;
+        // Sort chapters by official constitutional order (Constitucionales, Derechos, Garantias, Otros)
+        // Articles within each chapter remain ordered by articleNumber
+        return $this->chapterOrderService->sortChapterGroups($grouped);
     }
 }

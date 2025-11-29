@@ -84,7 +84,7 @@ final class ArticleRepository extends ServiceEntityRepository implements Article
     }
 
     /**
-     * Full text search for articles.
+     * Full text search for articles, ordered by article number.
      *
      * @return Article[]
      */
@@ -93,6 +93,7 @@ final class ArticleRepository extends ServiceEntityRepository implements Article
         $qb = $this->createQueryBuilder('a');
         $qb->where($qb->expr()->like('a.content', ':query'))
             ->setParameter('query', '%' . $query . '%')
+            ->orderBy('a.articleNumber', 'ASC')
             ->setMaxResults($limit);
         return $qb->getQuery()->getResult();
     }

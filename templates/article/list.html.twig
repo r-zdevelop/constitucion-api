@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Articles - {{ parent() }}{% endblock %}
+{% block title %}Artículos - {{ parent() }}{% endblock %}
 
 {% block body %}
 {# Main Container - Mobile First #}
@@ -10,18 +10,18 @@
     <div class="mb-6 sm:mb-8">
         <a
             href="{{ path('app_home') }}"
-            class="text-indigo-600 hover:text-indigo-800 font-semibold inline-flex items-center gap-2 transition-colors duration-200"
+            class="text-blue-800 hover:text-blue-950 font-bold inline-flex items-center gap-2 transition-colors duration-200"
         >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
-            Back to Home
+            Regresar al Inicio
         </a>
     </div>
 
     {# Page Title #}
-    <h1 class="text-indigo-600 text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8">
-        Articles List
+    <h1 class="text-blue-900 text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8">
+        Lista de Artículos
     </h1>
 
     {# Chapter Filter Section #}
@@ -33,20 +33,20 @@
                     <div class="flex-1">
                         <label
                             for="chapter-filter"
-                            class="block mb-2 font-semibold text-gray-700 text-sm sm:text-base"
+                            class="block mb-2 font-bold text-gray-900 text-sm sm:text-base"
                         >
-                            Filter by Chapter
+                            Filtrar por Capítulo:
                         </label>
                         <select
                             id="chapter-filter"
                             name="chapter"
                             onchange="this.form.submit()"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white
-                                   text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                   text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                                    cursor-pointer transition-all duration-200
                                    text-sm sm:text-base"
                         >
-                            <option value="">All Chapters</option>
+                            <option value="">Todos los capítulos</option>
                             {% for chapter in allChapters %}
                                 <option value="{{ chapter }}" {% if selectedChapter == chapter %}selected{% endif %}>
                                     {{ chapter }}
@@ -59,29 +59,29 @@
                     {% if selectedChapter %}
                         <a
                             href="{{ path('app_articles_list') }}"
-                            class="inline-block bg-white text-indigo-600 font-semibold
+                            class="inline-block bg-white text-blue-800 font-bold
                                    px-6 py-3 rounded-lg shadow-md
                                    hover:shadow-lg hover:-translate-y-0.5
                                    transition-all duration-200
                                    text-center text-sm sm:text-base
-                                   border border-indigo-200"
+                                   border-2 border-blue-300"
                         >
-                            Clear Filter
+                            Limpiar Filtro
                         </a>
                     {% endif %}
                 </div>
 
                 {# Statistics #}
-                <div class="text-gray-600 text-sm sm:text-base">
+                <div class="text-gray-800 text-sm sm:text-base font-medium">
                     {% if selectedChapter %}
-                        Showing <strong class="text-gray-800">{{ articles|length }}</strong>
-                        article{{ articles|length > 1 ? 's' : '' }}
-                        in <strong class="text-gray-800">{{ selectedChapter }}</strong>
+                        Mostrando <strong class="text-blue-900 font-bold">{{ articles|length }}</strong>
+                        artículo{{ articles|length > 1 ? 's' : '' }}
+                        en <strong class="text-blue-900 font-bold">{{ selectedChapter }}</strong>
                     {% else %}
-                        Total: <strong class="text-gray-800">{{ articles|length }}</strong>
-                        article{{ articles|length > 1 ? 's' : '' }}
-                        across <strong class="text-gray-800">{{ allChapters|length }}</strong>
-                        chapter{{ allChapters|length > 1 ? 's' : '' }}
+                        Total: <strong class="text-blue-900 font-bold">{{ articles|length }}</strong>
+                        artículo{{ articles|length > 1 ? 's' : '' }}
+                        en <strong class="text-blue-900 font-bold">{{ allChapters|length }}</strong>
+                        capítulo{{ allChapters|length > 1 ? 's' : '' }}
                     {% endif %}
                 </div>
             </form>
@@ -94,17 +94,17 @@
             <svg class="w-16 h-16 sm:w-20 sm:h-20 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            <p class="text-gray-600 text-lg sm:text-xl mb-2">
+            <p class="text-gray-800 text-lg sm:text-xl mb-2 font-semibold">
                 {% if selectedChapter %}
-                    No articles found in chapter "{{ selectedChapter }}".
+                    No se encontraron artículos en el capítulo "{{ selectedChapter }}".
                 {% else %}
-                    No articles found.
+                    No se encontraron artículos.
                 {% endif %}
             </p>
             {% if not selectedChapter %}
-                <p class="text-gray-500 text-sm sm:text-base mt-4">
-                    Import articles using the command:
-                    <code class="bg-gray-200 px-2 py-1 rounded text-xs sm:text-sm font-mono">
+                <p class="text-gray-700 text-sm sm:text-base mt-4 font-medium">
+                    Importa artículos usando el comando:
+                    <code class="bg-gray-300 px-2 py-1 rounded text-xs sm:text-sm font-mono font-bold text-gray-900">
                         bin/console app:import-constitution
                     </code>
                 </p>
@@ -115,13 +115,13 @@
     {% else %}
         <div class="space-y-6 sm:space-y-8">
             {% for chapterName, chapterArticles in articlesByChapter %}
-                <div class="border-2 border-indigo-200 rounded-lg overflow-hidden">
+                <div class="border-2 border-blue-200 rounded-lg overflow-hidden">
                     {# Chapter Header #}
-                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 sm:p-6">
+                    <div class="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-4 sm:p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <h2 class="text-xl sm:text-2xl font-bold">{{ chapterName }}</h2>
                             <span class="text-sm sm:text-base opacity-90 font-medium">
-                                {{ chapterArticles|length }} article{{ chapterArticles|length > 1 ? 's' : '' }}
+                                {{ chapterArticles|length }} artículo{{ chapterArticles|length > 1 ? 's' : '' }}
                             </span>
                         </div>
                     </div>
@@ -133,23 +133,23 @@
                                 <article class="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
                                     {# Article Header #}
                                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-                                        <h3 class="text-indigo-600 text-lg sm:text-xl font-bold">
-                                            Art&iacute;culo #{{ article.articleNumber }}
+                                        <h3 class="text-blue-900 text-lg sm:text-xl font-bold">
+                                            Artículo #{{ article.articleNumber }}
                                         </h3>
-                                        <span class="inline-block bg-indigo-600 text-white px-3 py-1 rounded-md text-xs sm:text-sm font-semibold self-start">
+                                        <span class="inline-block bg-blue-800 text-white px-3 py-1 rounded-md text-xs sm:text-sm font-bold self-start">
                                             {{ article.status }}
                                         </span>
                                     </div>
 
                                     {# Article Title #}
                                     {% if article.title %}
-                                        <h4 class="text-gray-800 font-semibold mb-3 text-base sm:text-lg">
+                                        <h4 class="text-gray-900 font-bold mb-3 text-base sm:text-lg">
                                             {{ article.title }}
                                         </h4>
                                     {% endif %}
 
                                     {# Article Content #}
-                                    <div class="text-gray-700 leading-relaxed mb-4 text-sm sm:text-base">
+                                    <div class="text-gray-800 leading-relaxed mb-4 text-sm sm:text-base">
                                         {{ article.content|length > 200 ? article.content|slice(0, 200) ~ '...' : article.content }}
                                     </div>
 
@@ -157,19 +157,10 @@
                                     {% if article.notes %}
                                         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 sm:p-4 rounded text-sm sm:text-base">
                                             <p class="text-yellow-800">
-                                                <strong class="font-semibold">Note:</strong> {{ article.notes }}
+                                                <strong class="font-semibold">Nota:</strong> {{ article.notes }}
                                             </p>
                                         </div>
                                     {% endif %}
-
-                                    {# Article Metadata #}
-                                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs sm:text-sm text-gray-500 flex flex-wrap gap-2 sm:gap-4">
-                                        <span>Created: {{ article.createdAt|date('Y-m-d H:i') }}</span>
-                                        {% if article.updatedAt > article.createdAt %}
-                                            <span class="hidden sm:inline">|</span>
-                                            <span>Updated: {{ article.updatedAt|date('Y-m-d H:i') }}</span>
-                                        {% endif %}
-                                    </div>
                                 </article>
                             {% endfor %}
                         </div>

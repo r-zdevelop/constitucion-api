@@ -31,6 +31,30 @@ class ArticleService
     }
 
     /**
+     * Find article(s) by article number.
+     * If documentId is provided, returns single article.
+     * Otherwise, returns all articles with that number across documents.
+     *
+     * @return Article[]
+     */
+    public function findByArticleNumber(int $articleNumber, ?int $documentId = null): array
+    {
+        // Validate article number is positive
+        if ($articleNumber <= 0) {
+            return [];
+        }
+
+        // If document ID specified, return single article wrapped in array
+        if ($documentId !== null) {
+            $article = $this->articles->findByNumber($documentId, $articleNumber);
+            return $article !== null ? [$article] : [];
+        }
+
+        // Otherwise, search across all documents
+        return $this->articles->findByArticleNumber($articleNumber);
+    }
+
+    /**
      * Update article content and record history atomically.
      */
     public function updateContent(Article $article, string $newContent, string $modifiedBy, ?string $reason = null): void

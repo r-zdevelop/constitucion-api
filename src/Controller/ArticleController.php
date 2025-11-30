@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\ArticleRepositoryInterface;
+use App\Service\ArticleService;
 use App\Service\ChapterOrderService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,8 +27,78 @@ final class ArticleController extends AbstractController
      */
     public function __construct(
         private readonly ArticleRepositoryInterface $articleRepository,
+        private readonly ArticleService $articleService,
         private readonly ChapterOrderService $chapterOrderService
     ) {
+    }
+
+    /**
+     * Search articles by article number
+     *
+     * Query parameters:
+     * - number: Article number to search for (required, positive integer)
+     * - documentId: Optional document ID to narrow search
+     *
+     * Returns JSON response with matching articles.
+     *
+     * @return Response JSON response with articles
+     */
+    #[Route('/api/articles/search-by-number', name: 'api_articles_search_by_number', methods: ['GET'])]
+    public function searchByNumber(Request $request): Response
+    {
+        // Extract and validate article number
+        $articleNumber = $request->query->get('number');
+        if ($articleNumber === null) {
+            return $this->json([
+                'error' => 'Missing required parameter: number',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Validate it's a positive integer
+        if (!ctype_digit($articleNumber) || (int)$articleNumber <= 0) {
+            return $this->json([
+                'error' => 'Parameter "number" must be a positive integer',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Optional: document ID filter
+        $documentId = $request->query->get('documentId');
+        $documentIdInt = null;
+
+        if ($documentId !== null) {
+            if (!ctype_digit($documentId) || (int)$documentId <= 0) {
+                return $this->json([
+                    'error' => 'Parameter "documentId" must be a positive integer',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            $documentIdInt = (int)$documentId;
+        }
+
+        // Execute search via service layer (encapsulates business logic)
+        $articles = $this->articleService->findByArticleNumber(
+            (int)$articleNumber,
+            $documentIdInt
+        );
+
+        // Transform to JSON-safe array
+        $articlesData = array_map(
+            fn($article) => [
+                'id' => $article->getId(),
+                'articleNumber' => $article->getArticleNumber(),
+                'title' => $article->getTitle(),
+                'content' => $article->getContent(),
+                'chapter' => $article->getChapter(),
+                'status' => $article->getStatus(),
+                'documentId' => $article->getDocument()->getId(),
+            ],
+            $articles
+        );
+
+        // Return structured JSON response
+        return $this->json([
+            'count' => count($articles),
+            'articles' => $articlesData,
+        ], Response::HTTP_OK);
     }
 
     /**

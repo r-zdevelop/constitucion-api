@@ -41,6 +41,20 @@ final class ArticleRepository extends ServiceEntityRepository implements Article
     }
 
     /**
+     * Find articles by article number across all documents.
+     * Returns multiple results if same article number exists in different documents.
+     *
+     * @return Article[]
+     */
+    public function findByArticleNumber(int $articleNumber): array
+    {
+        return $this->findBy(
+            ['articleNumber' => $articleNumber],
+            ['articleNumber' => 'ASC']
+        );
+    }
+
+    /**
      * Find all articles ordered by article number.
      *
      * @return Article[]

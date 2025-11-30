@@ -13,6 +13,14 @@ interface ArticleRepositoryInterface
     public function findByNumber(int $documentId, int $articleNumber): ?Article;
 
     /**
+     * Find articles by article number across all documents.
+     * Useful when document context is unknown.
+     *
+     * @return Article[]
+     */
+    public function findByArticleNumber(int $articleNumber): array;
+
+    /**
      * Find all articles.
      *
      * @return Article[]

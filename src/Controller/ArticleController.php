@@ -102,10 +102,12 @@ final class ArticleController extends AbstractController
     }
 
     /**
-     * List all articles with optional chapter filter
+     * List all articles with optional chapter filter, keyword search, and pagination
      *
      * Query parameters:
      * - chapter: Filter articles by chapter name
+     * - search: Keyword search (title + content)
+     * - page: Current page number (default: 1)
      *
      * @return Response The rendered articles list page
      */
@@ -118,14 +120,20 @@ final class ArticleController extends AbstractController
         // Sort chapters by official constitutional order
         $allChapters = $this->chapterOrderService->sortChapters($allChapters);
 
-        // Get the selected chapter from query string (sanitized by Symfony)
+        // Extract query parameters (sanitized by Symfony)
         $selectedChapter = $request->query->get('chapter', '');
+        $searchTerm = trim((string) $request->query->get('search', ''));
+        $page = max(1, (int) $request->query->get('page', 1));
 
-        // Filter articles by chapter if selected, otherwise get all
-        if ($selectedChapter !== '' && $selectedChapter !== null) {
-            $articles = $this->articleRepository->findByChapter($selectedChapter);
+        // Determine which service method to use based on search term
+        if ($searchTerm !== '') {
+            // Keyword search with pagination
+            $paginationData = $this->articleService->searchArticlesPaginated($searchTerm, $page);
+            $articles = $paginationData['items'];
         } else {
-            $articles = $this->articleRepository->findAll();
+            // Standard listing with optional chapter filter and pagination
+            $paginationData = $this->articleService->getAllArticlesPaginated($page, 20, $selectedChapter ?: null);
+            $articles = $paginationData['items'];
         }
 
         // Group articles by chapter for display
@@ -136,6 +144,8 @@ final class ArticleController extends AbstractController
             'articlesByChapter' => $articlesByChapter,
             'allChapters' => $allChapters,
             'selectedChapter' => $selectedChapter,
+            'searchTerm' => $searchTerm,
+            'pagination' => $paginationData,
         ]);
     }
 

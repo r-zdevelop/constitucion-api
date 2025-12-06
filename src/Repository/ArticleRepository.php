@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Article;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -110,6 +111,82 @@ final class ArticleRepository extends ServiceEntityRepository implements Article
             ->orderBy('a.articleNumber', 'ASC')
             ->setMaxResults($limit);
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Search articles by keywords (searches in title AND content) with pagination.
+     *
+     * Security: Uses Doctrine parameter binding to prevent SQL injection.
+     * Performance: Uses Doctrine Paginator for efficient COUNT + LIMIT queries.
+     *
+     * @param string $searchTerm Search query (sanitized by Doctrine parameter binding)
+     * @param int $page Current page (1-indexed, validated in service layer)
+     * @param int $itemsPerPage Number of items per page (validated in service layer)
+     * @return array{items: Article[], total: int, pages: int, currentPage: int}
+     */
+    public function searchPaginated(string $searchTerm, int $page = 1, int $itemsPerPage = 20): array
+    {
+        $qb = $this->createQueryBuilder('a');
+
+        // Search in both title and content (OR condition for better results)
+        $qb->where(
+            $qb->expr()->orX(
+                $qb->expr()->like('a.title', ':searchTerm'),
+                $qb->expr()->like('a.content', ':searchTerm')
+            )
+        )
+        ->setParameter('searchTerm', '%' . $searchTerm . '%')
+        ->orderBy('a.articleNumber', 'ASC');
+
+        // Apply pagination offset
+        $qb->setFirstResult(($page - 1) * $itemsPerPage)
+           ->setMaxResults($itemsPerPage);
+
+        // Use Doctrine Paginator for efficient counting
+        $paginator = new Paginator($qb->getQuery(), fetchJoinCollection: false);
+        $total = count($paginator);
+
+        return [
+            'items' => iterator_to_array($paginator),
+            'total' => $total,
+            'pages' => (int) ceil($total / $itemsPerPage),
+            'currentPage' => $page,
+        ];
+    }
+
+    /**
+     * Get all articles with pagination and optional chapter filter.
+     *
+     * @param int $page Current page (1-indexed)
+     * @param int $itemsPerPage Number of items per page
+     * @param string|null $chapter Optional chapter filter
+     * @return array{items: Article[], total: int, pages: int, currentPage: int}
+     */
+    public function findAllPaginated(int $page = 1, int $itemsPerPage = 20, ?string $chapter = null): array
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->orderBy('a.articleNumber', 'ASC');
+
+        // Apply chapter filter if provided
+        if ($chapter !== null && $chapter !== '') {
+            $qb->where('a.chapter = :chapter')
+               ->setParameter('chapter', $chapter);
+        }
+
+        // Apply pagination offset
+        $qb->setFirstResult(($page - 1) * $itemsPerPage)
+           ->setMaxResults($itemsPerPage);
+
+        // Use Doctrine Paginator for efficient counting
+        $paginator = new Paginator($qb->getQuery(), fetchJoinCollection: false);
+        $total = count($paginator);
+
+        return [
+            'items' => iterator_to_array($paginator),
+            'total' => $total,
+            'pages' => (int) ceil($total / $itemsPerPage),
+            'currentPage' => $page,
+        ];
     }
 
     /**

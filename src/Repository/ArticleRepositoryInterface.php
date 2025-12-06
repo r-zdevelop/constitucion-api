@@ -48,6 +48,26 @@ interface ArticleRepositoryInterface
      */
     public function fullTextSearch(string $query, int $limit = 50): array;
 
+    /**
+     * Search articles by keywords (title + content) with pagination.
+     *
+     * @param string $searchTerm Search query (sanitized by Doctrine)
+     * @param int $page Current page (1-indexed)
+     * @param int $itemsPerPage Number of items per page
+     * @return array{items: Article[], total: int, pages: int, currentPage: int}
+     */
+    public function searchPaginated(string $searchTerm, int $page = 1, int $itemsPerPage = 20): array;
+
+    /**
+     * Get all articles with pagination and optional chapter filter.
+     *
+     * @param int $page Current page (1-indexed)
+     * @param int $itemsPerPage Number of items per page
+     * @param string|null $chapter Optional chapter filter
+     * @return array{items: Article[], total: int, pages: int, currentPage: int}
+     */
+    public function findAllPaginated(int $page = 1, int $itemsPerPage = 20, ?string $chapter = null): array;
+
     public function save(Article $article): void;
 
     public function remove(Article $article): void;

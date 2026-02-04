@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -178,8 +178,8 @@ import { AuthService } from '@app/core/auth/services/auth.service';
     .menu-email {
       padding: 8px 16px;
       font-size: 0.85rem;
-      color: #666;
-      border-bottom: 1px solid #eee;
+      color: var(--lex-color-primary);
+      border-bottom: 1px solid var(--lex-color-light);
       margin-bottom: 8px;
     }
 

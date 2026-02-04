@@ -65,7 +65,7 @@ import { HighlightPipe } from '@app/shared/pipes/highlight.pipe';
     .article-title {
       font-weight: normal;
       font-size: 0.9em;
-      color: #666;
+      color: var(--lex-color-secondary);
     }
 
     mat-card-subtitle {
@@ -80,11 +80,11 @@ import { HighlightPipe } from '@app/shared/pipes/highlight.pipe';
 
     mat-card-content p {
       line-height: 1.6;
-      color: #333;
+      color: var(--lex-color-dark);
     }
 
     :host ::ng-deep .highlight {
-      background-color: #fff59d;
+      background-color: var(--lex-color-muted);
       padding: 0 2px;
       border-radius: 2px;
     }

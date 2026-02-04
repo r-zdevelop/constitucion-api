@@ -81,7 +81,7 @@ import { ArticleCardComponent } from '@app/shared/components/article-card/articl
     h1 {
       margin: 0;
       font-size: 1.8rem;
-      color: #333;
+      color: var(--lex-color-dark);
     }
 
     .chapter-filter {
@@ -102,7 +102,7 @@ import { ArticleCardComponent } from '@app/shared/components/article-card/articl
 
     .no-results {
       text-align: center;
-      color: #666;
+      color: var(--lex-color-secondary);
       padding: 40px;
       font-size: 1.1rem;
     }

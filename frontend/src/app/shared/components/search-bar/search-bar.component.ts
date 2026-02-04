@@ -57,7 +57,7 @@ import { DebounceInputDirective } from '@app/shared/directives/debounce-input.di
 
     .hint {
       font-size: 12px;
-      color: #666;
+      color: var(--lex-color-secondary);
       margin-top: -16px;
       display: block;
     }

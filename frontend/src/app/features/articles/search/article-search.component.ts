@@ -88,11 +88,11 @@ import { SearchBarComponent } from '@app/shared/components/search-bar/search-bar
     h1 {
       margin: 0 0 8px;
       font-size: 1.8rem;
-      color: #333;
+      color: var(--lex-color-dark);
     }
 
     .description {
-      color: #666;
+      color: var(--lex-color-secondary);
       margin: 0;
     }
 
@@ -107,7 +107,7 @@ import { SearchBarComponent } from '@app/shared/components/search-bar/search-bar
     }
 
     .results-count {
-      color: #666;
+      color: var(--lex-color-secondary);
       margin-bottom: 16px;
     }
 
@@ -120,7 +120,7 @@ import { SearchBarComponent } from '@app/shared/components/search-bar/search-bar
     .no-results,
     .empty-state p {
       text-align: center;
-      color: #666;
+      color: var(--lex-color-secondary);
       padding: 40px;
       font-size: 1.1rem;
     }

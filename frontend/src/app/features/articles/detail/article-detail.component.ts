@@ -135,7 +135,7 @@ import { ArticleService } from '@app/core/services/article.service';
 
     .article-title {
       font-weight: normal;
-      color: #666;
+      color: var(--lex-color-secondary);
     }
 
     mat-card-subtitle {
@@ -145,7 +145,7 @@ import { ArticleService } from '@app/core/services/article.service';
     .article-content {
       font-size: 1.1rem;
       line-height: 1.8;
-      color: #333;
+      color: var(--lex-color-dark);
       white-space: pre-wrap;
       margin: 24px 0;
     }
@@ -158,7 +158,7 @@ import { ArticleService } from '@app/core/services/article.service';
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #1976d2;
+      color: var(--lex-color-primary);
       margin-bottom: 16px;
     }
 
@@ -169,17 +169,17 @@ import { ArticleService } from '@app/core/services/article.service';
     }
 
     .concordance-card {
-      background-color: #f5f5f5;
+      background-color: var(--lex-color-light);
     }
 
     .concordance-card mat-card-title {
       font-size: 1rem;
-      color: #333;
+      color: var(--lex-color-dark);
     }
 
     .concordance-card p {
       font-size: 0.9rem;
-      color: #666;
+      color: var(--lex-color-secondary);
       margin: 0;
     }
 
@@ -202,12 +202,12 @@ import { ArticleService } from '@app/core/services/article.service';
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: #999;
+      color: var(--lex-color-muted);
     }
 
     .not-found p {
       font-size: 1.2rem;
-      color: #666;
+      color: var(--lex-color-secondary);
       margin: 16px 0 24px;
     }
   `]

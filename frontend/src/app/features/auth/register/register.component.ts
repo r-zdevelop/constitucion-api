@@ -166,7 +166,7 @@ import { AuthService } from '@app/core/auth/services/auth.service';
     }
 
     mat-card-actions a {
-      color: #1976d2;
+      color: var(--lex-color-primary);
       text-decoration: none;
     }
 

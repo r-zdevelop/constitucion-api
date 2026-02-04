@@ -6,12 +6,32 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// Custom teal palette based on the LexEcuador color scheme
+$lexecuador-primary: (
+  0: #000000,
+  10: #0a2e38,
+  20: #134450,
+  25: #175a6c,
+  30: #1d6a7d,
+  35: #247a8d,
+  40: #3d8a94,
+  50: #4f9da3,
+  60: #6eb0b5,
+  70: #8fb8b8,
+  80: #b0d0d0,
+  90: #d4e8e8,
+  95: #e8f3f4,
+  98: #f2f9f9,
+  99: #f8fcfc,
+  100: #ffffff,
+);
+
 html {
   height: 100%;
   @include mat.theme((
     color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
+      primary: $lexecuador-primary,
+      tertiary: $lexecuador-primary,
     ),
     typography: Roboto,
     density: 0,
@@ -37,8 +57,17 @@ body {
 }
 /* You can add global styles to this file, and also import other style files */
 
+// CSS custom properties for easy access to palette colors
+:root {
+  --lex-color-dark: #175a6c;
+  --lex-color-primary: #3d8a94;
+  --lex-color-secondary: #4f9da3;
+  --lex-color-muted: #8fb8b8;
+  --lex-color-light: #e8f3f4;
+}
+
 .highlight {
-  background-color: #fff59d;
+  background-color: #b0d0d0;
   padding: 0 2px;
   border-radius: 2px;
 }

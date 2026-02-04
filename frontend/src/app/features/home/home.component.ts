@@ -77,18 +77,18 @@ import { MatCardModule } from '@angular/material/card';
       font-size: 80px;
       width: 80px;
       height: 80px;
-      color: #1976d2;
+      color: var(--lex-color-primary);
     }
 
     h1 {
       font-size: 2.5rem;
       margin: 24px 0 16px;
-      color: #333;
+      color: var(--lex-color-dark);
     }
 
     .subtitle {
       font-size: 1.2rem;
-      color: #666;
+      color: var(--lex-color-secondary);
       max-width: 600px;
       margin: 0 auto 32px;
       line-height: 1.6;
@@ -126,11 +126,11 @@ import { MatCardModule } from '@angular/material/card';
       font-size: 40px;
       width: 40px;
       height: 40px;
-      color: #1976d2;
+      color: var(--lex-color-primary);
     }
 
     .features mat-card-content p {
-      color: #666;
+      color: var(--lex-color-secondary);
       line-height: 1.5;
     }
 

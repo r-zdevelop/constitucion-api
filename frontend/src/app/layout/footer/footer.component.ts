@@ -15,7 +15,7 @@ import { Component } from '@angular/core';
   `,
   styles: [`
     footer {
-      background-color: #333;
+      background-color: var(--lex-color-dark);
       color: #fff;
       padding: 24px;
       margin-top: auto;
@@ -29,7 +29,7 @@ import { Component } from '@angular/core';
 
     .disclaimer {
       font-size: 0.85rem;
-      color: #999;
+      color: var(--lex-color-muted);
       margin-top: 8px;
     }
   `]

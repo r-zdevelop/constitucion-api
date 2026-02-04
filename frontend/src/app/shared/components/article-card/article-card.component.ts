@@ -19,7 +19,7 @@ import { HighlightPipe } from '@app/shared/pipes/highlight.pipe';
     HighlightPipe
   ],
   template: `
-    <mat-card class="article-card">
+    <mat-card class="article-card" [attr.id]="'article-' + article.articleNumber">
       <mat-card-header>
         <mat-card-title>
           @if (searchTerm) {

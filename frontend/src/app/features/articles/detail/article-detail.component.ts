@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -22,7 +22,12 @@ import { ArticleService } from '@app/core/services/article.service';
   ],
   template: `
     <div class="detail-container">
-      <a mat-button routerLink="/articles" class="back-button">
+      <a 
+        mat-button 
+        routerLink="/articles" 
+        [queryParams]="{ ...listQueryParams(), scrollTo: articleService.currentArticle()?.articleNumber }" 
+        class="back-button"
+      >
         <mat-icon>arrow_back</mat-icon>
         Volver a la lista
       </a>
@@ -210,6 +215,23 @@ import { ArticleService } from '@app/core/services/article.service';
 export class ArticleDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   articleService = inject(ArticleService);
+
+  listQueryParams = computed(() => {
+    const pagination = this.articleService.pagination();
+    const chapter = this.articleService.currentChapter();
+
+    const params: Record<string, string | number> = {};
+    if (pagination && pagination.currentPage > 1) {
+      params['page'] = pagination.currentPage;
+    }
+    if (pagination && pagination.itemsPerPage !== 10) {
+      params['limit'] = pagination.itemsPerPage;
+    }
+    if (chapter) {
+      params['chapter'] = chapter;
+    }
+    return params;
+  });
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {

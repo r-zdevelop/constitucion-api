@@ -34,6 +34,17 @@ import { AuthService } from '@app/core/auth/services/auth.service';
         <mat-card-content>
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline">
+              <mat-label>Nombre</mat-label>
+              <input matInput type="text" formControlName="name" />
+              <mat-icon matPrefix>person</mat-icon>
+              @if (registerForm.get('name')?.hasError('required') && registerForm.get('name')?.touched) {
+                <mat-error>El nombre es requerido</mat-error>
+              }
+              @if (registerForm.get('name')?.hasError('minlength') && registerForm.get('name')?.touched) {
+                <mat-error>Minimo 2 caracteres</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
               <mat-label>Correo electronico</mat-label>
               <input matInput type="email" formControlName="email" />
               <mat-icon matPrefix>email</mat-icon>
@@ -177,6 +188,7 @@ export class RegisterComponent {
   hideConfirmPassword = true;
 
   registerForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', Validators.required]
@@ -195,8 +207,8 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.registerForm.invalid) return;
 
-    const { email, password } = this.registerForm.value;
-    this.authService.register({ email, password }).subscribe({
+    const { name, email, password } = this.registerForm.value;
+    this.authService.register({ name, email, password }).subscribe({
       next: () => {
         this.router.navigate(['/articles']);
       }

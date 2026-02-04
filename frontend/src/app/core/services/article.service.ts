@@ -14,13 +14,15 @@ export class ArticleService {
   private paginationSignal = signal<PaginationMeta | null>(null);
   private isLoadingSignal = signal<boolean>(false);
   private currentArticleSignal = signal<Article | null>(null);
+  private currentChapterSignal = signal<string | null>(null);
 
   readonly articles = this.articlesSignal.asReadonly();
   readonly pagination = this.paginationSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
   readonly currentArticle = this.currentArticleSignal.asReadonly();
+  readonly currentChapter = this.currentChapterSignal.asReadonly();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getArticles(page = 1, limit = 10, chapter?: string): Observable<ArticleListResponse> {
     this.isLoadingSignal.set(true);
@@ -37,6 +39,7 @@ export class ArticleService {
       tap(response => {
         this.articlesSignal.set(response.data);
         this.paginationSignal.set(response.meta);
+        this.currentChapterSignal.set(chapter ?? null);
         this.isLoadingSignal.set(false);
       })
     );

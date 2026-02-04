@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, AfterViewInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -127,17 +128,46 @@ import { ArticleCardComponent } from '@app/shared/components/article-card/articl
   `]
 })
 export class ArticleListComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   articleService = inject(ArticleService);
   chapterService = inject(ChapterService);
 
   selectedChapter: string | null = null;
-  private currentPage = 1;
-  private pageSize = 10;
+  currentPage = 1;
+  pageSize = 10;
+
+  private scrollToArticle(articleNumber: number): void {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`article-${articleNumber}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
 
   ngOnInit(): void {
-    this.loadArticles();
+    this.route.queryParams.subscribe(params => {
+      this.currentPage = params['page'] ? +params['page'] : 1;
+      this.pageSize = params['limit'] ? +params['limit'] : 10;
+      this.selectedChapter = params['chapter'] || null;
+
+      const scrollTo = params['scrollTo'] ? +params['scrollTo'] : null;
+
+      this.articleService.getArticles(
+        this.currentPage,
+        this.pageSize,
+        this.selectedChapter ?? undefined
+      ).subscribe(() => {
+        if (scrollTo) {
+          this.scrollToArticle(scrollTo);
+        }
+      });
+    });
+
     this.chapterService.getChapters().subscribe();
   }
+
 
   loadArticles(): void {
     this.articleService.getArticles(
@@ -149,12 +179,26 @@ export class ArticleListComponent implements OnInit {
 
   onChapterChange(): void {
     this.currentPage = 1;
-    this.loadArticles();
+    this.updateUrl();
   }
 
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.loadArticles();
+    this.updateUrl();
+  }
+
+  private updateUrl(): void {
+    const queryParams: Record<string, string | number | null> = {
+      page: this.currentPage > 1 ? this.currentPage : null,
+      limit: this.pageSize !== 10 ? this.pageSize : null,
+      chapter: this.selectedChapter
+    };
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 }

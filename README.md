@@ -1,23 +1,37 @@
-# LexEcuador API
+# LexEcuador
 
-API REST para consulta de la Constitución de la República del Ecuador, construida con Symfony 7.3, MongoDB y arquitectura Clean Architecture + DDD.
+Aplicación full-stack para consulta de la Constitución de la República del Ecuador.
 
 ## Tecnologías
 
-- **Backend:** PHP 8.2+, Symfony 7.3
+### Backend
+- **Framework:** PHP 8.2+, Symfony 7.3
 - **Base de datos:** MongoDB (Doctrine ODM)
 - **Autenticación:** JWT (LexikJWTAuthenticationBundle)
 - **Documentación:** OpenAPI/Swagger (NelmioApiDocBundle)
 - **Arquitectura:** Clean Architecture + Domain-Driven Design
 
+### Frontend
+- **Framework:** Angular 17+ (Standalone Components)
+- **UI:** Angular Material
+- **Estado:** Angular Signals
+- **Rutas:** Lazy Loading
+
 ## Requisitos
 
+### Backend
 - PHP 8.2+
 - Extensión MongoDB para PHP (`ext-mongodb`)
 - MongoDB 4.4+
 - Composer
 
+### Frontend
+- Node.js 18+
+- npm 9+
+
 ## Instalación
+
+### Backend
 
 ```bash
 # Clonar el repositorio
@@ -41,6 +55,18 @@ php bin/console doctrine:mongodb:schema:create
 php bin/console app:import-constitution
 ```
 
+### Frontend
+
+```bash
+cd frontend
+
+# Instalar dependencias
+npm install
+
+# Configurar entorno (opcional - editar src/environments/environment.ts)
+# Por defecto conecta a http://localhost:8000/api/v1
+```
+
 ## Configuración
 
 ### Variables de entorno (.env.local)
@@ -61,12 +87,27 @@ CORS_ALLOW_ORIGIN='^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
 
 ## Uso
 
+### Backend
+
 ```bash
 # Iniciar servidor de desarrollo
 symfony server:start
 
 # O con PHP integrado
 php -S 127.0.0.1:8000 -t public
+```
+
+### Frontend
+
+```bash
+cd frontend
+
+# Iniciar servidor de desarrollo
+npm start
+# Disponible en http://localhost:4200
+
+# Build de producción
+npm run build
 ```
 
 ## API Endpoints
@@ -132,6 +173,8 @@ curl http://localhost:8000/api/v1/articles/number/1
 
 ## Arquitectura
 
+### Backend
+
 ```
 src/
 ├── Domain/                    # Capa de dominio
@@ -186,6 +229,30 @@ src/
 │       └── ExceptionSubscriber.php
 └── Command/
     └── ImportConstitutionCommand.php
+```
+
+### Frontend
+
+```
+frontend/src/app/
+├── core/                      # Servicios singleton, guards, interceptors
+│   ├── auth/
+│   │   ├── guards/           # auth.guard.ts, guest.guard.ts
+│   │   └── interceptors/     # auth.interceptor.ts, error.interceptor.ts
+│   └── services/             # auth.service.ts, article.service.ts, chapter.service.ts
+├── shared/                    # Componentes reutilizables
+│   ├── components/           # article-card, search-bar
+│   ├── pipes/                # truncate.pipe.ts, highlight.pipe.ts
+│   └── directives/           # debounce-input.directive.ts
+├── models/                    # Interfaces TypeScript
+├── features/                  # Módulos lazy-loaded
+│   ├── auth/                 # login, register
+│   ├── articles/             # list, detail, search
+│   └── home/                 # landing page
+├── layout/                    # header, footer, main-layout
+├── app.component.ts
+├── app.config.ts
+└── app.routes.ts
 ```
 
 ## Comandos útiles

@@ -4,121 +4,144 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Entity\Article;
-use App\Entity\LegalDocument;
-use App\Repository\ArticleRepositoryInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Domain\Document\Article;
+use App\Domain\Document\EmbeddedConcordance;
+use App\Domain\Document\LegalDocument;
+use App\Domain\Repository\ArticleRepositoryInterface;
+use App\Domain\Repository\LegalDocumentRepositoryInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:import-constitution',
+    description: 'Imports constitution articles from JSON file into MongoDB'
+)]
 final class ImportConstitutionCommand extends Command
 {
-
-    protected static $defaultName = 'app:import-constitution';
-
-    protected function configure(): void
-    {
-        $this->setName(self::$defaultName)
-            ->setDescription('Imports constitution articles from JSON file');
-    }
-
     public function __construct(
-        private ArticleRepositoryInterface $articleRepository,
-        private EntityManagerInterface $entityManager
+        private readonly ArticleRepositoryInterface $articleRepository,
+        private readonly LegalDocumentRepositoryInterface $documentRepository
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $jsonPath = __DIR__ . '/../../data/constitucion.json';
+        $io = new SymfonyStyle($input, $output);
+
+        $jsonPath = dirname(__DIR__, 2) . '/data/constitucion.json';
+
         if (!file_exists($jsonPath)) {
-            $output->writeln('<error>JSON file not found.</error>');
+            $io->error('JSON file not found at: ' . $jsonPath);
             return Command::FAILURE;
         }
 
-        $data = json_decode(file_get_contents($jsonPath), true, 512, JSON_THROW_ON_ERROR);
+        $io->info('Reading JSON file...');
 
-        // Fetch or create LegalDocument using top-level JSON fields
-        $document = $this->entityManager->getRepository(LegalDocument::class)
-            ->findOneBy(['name' => $data['name'], 'year' => $data['year']]);
+        try {
+            $data = json_decode(file_get_contents($jsonPath), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            $io->error('Failed to parse JSON: ' . $e->getMessage());
+            return Command::FAILURE;
+        }
 
-        if (!$document) {
-            // Parse last_modified into DateTimeImmutable (constructor expects DateTimeInterface)
-            if (!empty($data['last_modified'])) {
-                try {
-                    // Doctrine 'date' type expects a mutable \DateTime instance
-                    $lastModified = new \DateTime($data['last_modified']);
-                } catch (\Throwable $e) {
-                    // Fallback to current date on parse error
-                    $lastModified = new \DateTime();
-                }
-            } else {
+        // Find or create LegalDocument
+        $document = $this->documentRepository->findByNameAndYear(
+            $data['name'] ?? 'Unknown',
+            (int) ($data['year'] ?? date('Y'))
+        );
+
+        if ($document === null) {
+            $io->info('Creating new LegalDocument...');
+
+            try {
+                $lastModified = new \DateTime($data['last_modified'] ?? 'now');
+            } catch (\Exception) {
                 $lastModified = new \DateTime();
             }
 
             $document = new LegalDocument(
-                $data['name'],
-                'constitution',
-                (int) $data['year'],
-                $lastModified,
-                (int) ($data['total_articles'] ?? 0)
+                name: $data['name'] ?? 'Unknown',
+                documentType: 'constitution',
+                year: (int) ($data['year'] ?? date('Y')),
+                lastModified: $lastModified,
+                totalArticles: (int) ($data['total_articles'] ?? 0)
             );
-            $this->entityManager->persist($document);
-            $this->entityManager->flush();
+
+            $this->documentRepository->save($document);
+            $this->documentRepository->flush();
+
+            $io->success('LegalDocument created with ID: ' . $document->getId());
+        } else {
+            $io->info('Using existing LegalDocument with ID: ' . $document->getId());
         }
 
-        // Track article numbers seen during this import to avoid duplicates inside the JSON
+        $documentId = $document->getId();
         $seenArticleNumbers = [];
+        $importedCount = 0;
+        $skippedCount = 0;
 
-        foreach ($data['articles'] as $articleData) {
+        $io->info('Importing articles...');
+        $io->progressStart(count($data['articles'] ?? []));
+
+        foreach ($data['articles'] ?? [] as $articleData) {
             $number = (int) $articleData['number'];
 
-            // Skip duplicate numbers within the same JSON file
+            // Skip duplicate numbers in JSON
             if (isset($seenArticleNumbers[$number])) {
-                $output->writeln(sprintf('<comment>Skipping duplicate article number %d in JSON (already processed in this run).</comment>', $number));
+                $io->progressAdvance();
+                $skippedCount++;
                 continue;
             }
 
-            // Skip if article already exists in the database for this document
-            $existingArticle = $this->articleRepository->findByNumber($document->getId(), $number);
-            if ($existingArticle) {
-                $output->writeln(sprintf('<comment>Skipping article number %d because it already exists in the database.</comment>', $number));
-                // mark as seen to avoid re-checking during this run
+            // Skip if already exists in database
+            $existingArticle = $this->articleRepository->findByNumber($documentId, $number);
+            if ($existingArticle !== null) {
                 $seenArticleNumbers[$number] = true;
+                $io->progressAdvance();
+                $skippedCount++;
                 continue;
             }
 
-            // mark as seen immediately to prevent duplicates later in the JSON
             $seenArticleNumbers[$number] = true;
 
             $article = new Article(
-                $document,
-                $number,
-                $articleData['content'],
-                $articleData['title'] ?? null
+                documentId: $documentId,
+                articleNumber: $number,
+                content: $articleData['content'] ?? '',
+                title: $articleData['title'] ?? null
             );
+
             $article->setChapter($articleData['chapter'] ?? null);
 
+            // Add concordances as embedded documents
             foreach ($articleData['concordancias'] ?? [] as $concordanceData) {
-                // Store concordance as a simple associative array to be saved in Article::concordances (JSON)
-                $concordanceArray = [
-                    'referencedLaw' => $concordanceData['law'],
-                    'referencedArticles' => $concordanceData['articles'],
-                    'sourceArticleNumber' => $number,
-                    'createdAt' => (new \DateTimeImmutable())->format(\DateTime::ATOM),
-                ];
-
-                $article->addConcordance($concordanceArray);
+                $concordance = new EmbeddedConcordance(
+                    referencedLaw: $concordanceData['law'] ?? '',
+                    referencedArticles: $concordanceData['articles'] ?? '',
+                    sourceArticleNumber: $number
+                );
+                $article->addConcordance($concordance);
             }
 
             $this->articleRepository->save($article);
+            $importedCount++;
+
+            $io->progressAdvance();
         }
 
-        $this->entityManager->flush();
+        $this->articleRepository->flush();
 
-        $output->writeln('<info>Import completed successfully.</info>');
+        $io->progressFinish();
+        $io->success(sprintf(
+            'Import completed. Imported: %d, Skipped: %d',
+            $importedCount,
+            $skippedCount
+        ));
+
         return Command::SUCCESS;
     }
 }

@@ -23,6 +23,9 @@ services:
     App\Domain\Repository\LegalDocumentRepositoryInterface:
         class: App\Infrastructure\Persistence\MongoDB\Repository\MongoDBLegalDocumentRepository
 
+    App\Domain\Repository\CollectionRepositoryInterface:
+        class: App\Infrastructure\Persistence\MongoDB\Repository\MongoDBCollectionRepository
+
     # Exception Subscriber
     App\Presentation\API\EventSubscriber\ExceptionSubscriber:
         arguments:

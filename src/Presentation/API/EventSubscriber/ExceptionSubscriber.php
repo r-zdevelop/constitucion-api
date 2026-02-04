@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Presentation\API\EventSubscriber;
 
+use App\Domain\Exception\ArticleAlreadyInCollectionException;
 use App\Domain\Exception\ArticleNotFoundException;
+use App\Domain\Exception\CollectionAccessDeniedException;
+use App\Domain\Exception\CollectionLimitExceededException;
+use App\Domain\Exception\CollectionNotFoundException;
+use App\Domain\Exception\DuplicateCollectionNameException;
 use App\Domain\Exception\DuplicateEmailException;
 use App\Domain\Exception\InvalidCredentialsException;
 use App\Domain\Exception\UserNotFoundException;
@@ -70,11 +75,18 @@ final class ExceptionSubscriber implements EventSubscriberInterface
 
         return match (true) {
             $exception instanceof ArticleNotFoundException,
+            $exception instanceof CollectionNotFoundException,
             $exception instanceof UserNotFoundException => Response::HTTP_NOT_FOUND,
 
-            $exception instanceof DuplicateEmailException => Response::HTTP_CONFLICT,
+            $exception instanceof DuplicateEmailException,
+            $exception instanceof DuplicateCollectionNameException,
+            $exception instanceof ArticleAlreadyInCollectionException => Response::HTTP_CONFLICT,
 
             $exception instanceof InvalidCredentialsException => Response::HTTP_UNAUTHORIZED,
+
+            $exception instanceof CollectionAccessDeniedException => Response::HTTP_FORBIDDEN,
+
+            $exception instanceof CollectionLimitExceededException => Response::HTTP_PAYMENT_REQUIRED,
 
             $exception instanceof \InvalidArgumentException => Response::HTTP_BAD_REQUEST,
 
@@ -87,6 +99,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
         return match ($statusCode) {
             Response::HTTP_BAD_REQUEST => 'Bad Request',
             Response::HTTP_UNAUTHORIZED => 'Unauthorized',
+            Response::HTTP_PAYMENT_REQUIRED => 'Payment Required',
             Response::HTTP_FORBIDDEN => 'Forbidden',
             Response::HTTP_NOT_FOUND => 'Not Found',
             Response::HTTP_CONFLICT => 'Conflict',

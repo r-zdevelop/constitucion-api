@@ -1,0 +1,59 @@
+services:
+  # Symfony Backend
+  php:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    container_name: lexecuador-php
+    volumes:
+      - .:/var/www/html
+      - ./config/jwt:/var/www/html/config/jwt
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: dev
+      APP_SECRET: ${APP_SECRET:-change_this_to_a_secure_secret}
+      MONGODB_URL: mongodb://mongo:27017
+      MONGODB_DB: lexecuador_db
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-your_jwt_passphrase}
+      CORS_ALLOW_ORIGIN: '^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
+    depends_on:
+      - mongo
+    networks:
+      - lexecuador-network
+
+  # MongoDB Database
+  mongo:
+    image: mongo:7.0
+    container_name: lexecuador-mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - lexecuador-network
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../.docker/frontend/Dockerfile
+    container_name: lexecuador-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "4200:4200"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - php
+    networks:
+      - lexecuador-network
+
+volumes:
+  mongo-data:
+
+networks:
+  lexecuador-network:
+    driver: bridge

@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Docker
+.docker
+docker-compose.yml
+Dockerfile
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Dependencies
+vendor
+node_modules
+
+# Cache and logs
+var/cache
+var/log
+
+# Environment files (use docker-compose env vars instead)
+.env.local
+.env.*.local
+
+# Frontend (built separately)
+frontend
+
+# Build artifacts
+*.log

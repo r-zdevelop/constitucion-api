@@ -67,6 +67,65 @@ npm install
 # Por defecto conecta a http://localhost:8000/api/v1
 ```
 
+## Docker (Recomendado)
+
+La forma más sencilla de ejecutar el proyecto es con Docker.
+
+### Requisitos
+- Docker
+- Docker Compose
+
+### Inicio rápido
+
+```bash
+# Construir contenedores
+make build
+
+# Iniciar todos los servicios
+make up
+
+# Generar claves JWT (primera vez)
+make jwt-keys
+
+# Importar datos de la constitución
+make import-data
+```
+
+Los servicios estarán disponibles en:
+- **Backend API:** http://localhost:8000
+- **Frontend:** http://localhost:4200
+- **MongoDB:** localhost:27017
+- **Swagger UI:** http://localhost:8000/api/doc
+
+### Comandos Docker disponibles
+
+```bash
+make help           # Ver todos los comandos
+make build          # Construir contenedores
+make up             # Iniciar contenedores
+make down           # Detener contenedores
+make logs           # Ver logs
+make shell-php      # Acceder al contenedor PHP
+make shell-frontend # Acceder al contenedor frontend
+make shell-mongo    # Acceder a MongoDB shell
+make import-data    # Importar datos de constitución
+make jwt-keys       # Generar claves JWT
+make cache-clear    # Limpiar caché de Symfony
+```
+
+### Estructura Docker
+
+```
+.docker/
+├── php/
+│   └── Dockerfile      # PHP 8.2 + MongoDB extension + Symfony CLI
+└── frontend/
+    └── Dockerfile      # Node 22 + Angular CLI
+
+docker-compose.yml      # Orquestación de servicios
+Makefile               # Comandos simplificados
+```
+
 ## Configuración
 
 ### Variables de entorno (.env.local)

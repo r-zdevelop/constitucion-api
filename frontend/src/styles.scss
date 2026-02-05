@@ -85,3 +85,21 @@ a {
 a:hover {
   text-decoration: none;
 }
+
+// Ensure Material dialogs have proper styling
+.cdk-overlay-pane {
+  max-width: 90vw !important;
+}
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: white;
+  background-color: white !important;
+}
+
+.mat-mdc-dialog-surface {
+  background-color: white !important;
+}
+
+.cdk-overlay-dark-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

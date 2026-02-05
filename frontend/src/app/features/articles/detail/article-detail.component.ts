@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -6,7 +6,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ArticleService } from '@app/core/services/article.service';
+import { CollectionService } from '@app/core/services/collection.service';
+import { AuthService } from '@app/core/auth/services/auth.service';
+import { AddToCollectionDialogComponent } from '@app/features/collections/add-to-collection-dialog/add-to-collection-dialog.component';
+import { Collection } from '@app/models';
 
 @Component({
   selector: 'app-article-detail',
@@ -18,19 +24,32 @@ import { ArticleService } from '@app/core/services/article.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule,
+    MatSnackBarModule
   ],
   template: `
     <div class="detail-container">
-      <a 
-        mat-button 
-        routerLink="/articles" 
-        [queryParams]="{ ...listQueryParams(), scrollTo: articleService.currentArticle()?.articleNumber }" 
-        class="back-button"
-      >
-        <mat-icon>arrow_back</mat-icon>
-        Volver a la lista
-      </a>
+      @if (fromCollectionId()) {
+        <a
+          mat-button
+          [routerLink]="['/collections', fromCollectionId()]"
+          class="back-button"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          Volver a la coleccion
+        </a>
+      } @else {
+        <a
+          mat-button
+          routerLink="/articles"
+          [queryParams]="{ ...listQueryParams(), scrollTo: articleService.currentArticle()?.articleNumber }"
+          class="back-button"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          Volver a la lista
+        </a>
+      }
 
       @if (articleService.isLoading()) {
         <div class="loading">
@@ -46,11 +65,23 @@ import { ArticleService } from '@app/core/services/article.service';
               }
             </mat-card-title>
             <mat-card-subtitle>
-              <mat-chip-set>
-                <mat-chip color="primary" highlighted>
-                  {{ article.chapter }}
-                </mat-chip>
-              </mat-chip-set>
+              <div class="subtitle-row">
+                <mat-chip-set>
+                  <mat-chip color="primary" highlighted>
+                    {{ article.chapter }}
+                  </mat-chip>
+                </mat-chip-set>
+                @if (authService.isAuthenticated()) {
+                  <button
+                    mat-stroked-button
+                    class="add-collection-btn"
+                    (click)="openAddToCollectionDialog(article)"
+                  >
+                    <mat-icon>bookmark_add</mat-icon>
+                    Guardar
+                  </button>
+                }
+              </div>
             </mat-card-subtitle>
           </mat-card-header>
 
@@ -85,13 +116,17 @@ import { ArticleService } from '@app/core/services/article.service';
           <mat-card-actions>
             <div class="navigation-buttons">
               @if (article.articleNumber > 1) {
-                <a mat-stroked-button [routerLink]="['/articles', article.articleNumber - 1]">
+                <a mat-stroked-button
+                   [routerLink]="['/articles', article.articleNumber - 1]"
+                   [queryParams]="fromCollectionId() ? { fromCollection: fromCollectionId() } : {}">
                   <mat-icon>chevron_left</mat-icon>
                   Art. {{ article.articleNumber - 1 }}
                 </a>
               }
               <span class="spacer"></span>
-              <a mat-stroked-button [routerLink]="['/articles', article.articleNumber + 1]">
+              <a mat-stroked-button
+                 [routerLink]="['/articles', article.articleNumber + 1]"
+                 [queryParams]="fromCollectionId() ? { fromCollection: fromCollectionId() } : {}">
                 Art. {{ article.articleNumber + 1 }}
                 <mat-icon>chevron_right</mat-icon>
               </a>
@@ -140,6 +175,34 @@ import { ArticleService } from '@app/core/services/article.service';
 
     mat-card-subtitle {
       margin-top: 12px;
+      width: 100%;
+    }
+
+    .subtitle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .add-collection-btn {
+      font-size: 0.875rem;
+      border-color: var(--lex-color-primary);
+      color: var(--lex-color-primary);
+      transition: all 0.2s ease;
+    }
+
+    .add-collection-btn:hover {
+      background-color: var(--lex-color-primary);
+      color: white;
+    }
+
+    .add-collection-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 4px;
     }
 
     .article-content {
@@ -214,7 +277,13 @@ import { ArticleService } from '@app/core/services/article.service';
 })
 export class ArticleDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private collectionService = inject(CollectionService);
   articleService = inject(ArticleService);
+  authService = inject(AuthService);
+
+  fromCollectionId = signal<string | null>(null);
 
   listQueryParams = computed(() => {
     const pagination = this.articleService.pagination();
@@ -234,6 +303,10 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(query => {
+      this.fromCollectionId.set(query['fromCollection'] || null);
+    });
+
     this.route.params.subscribe(params => {
       const articleNumber = +params['number'];
       if (articleNumber) {
@@ -244,5 +317,42 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.articleService.clearCurrentArticle();
+  }
+
+  openAddToCollectionDialog(article: { id: string; articleNumber: number }): void {
+    const dialogRef = this.dialog.open(AddToCollectionDialogComponent, {
+      width: '400px',
+      maxWidth: '90vw',
+      hasBackdrop: true,
+      disableClose: false,
+      autoFocus: true,
+      data: {
+        articleId: article.id,
+        articleNumber: article.articleNumber
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((collection: Collection | undefined) => {
+      if (collection) {
+        this.collectionService.addArticleToCollection(collection.id, article.id).subscribe({
+          next: () => {
+            this.snackBar.open(
+              `Articulo agregado a "${collection.name}"`,
+              'Ver coleccion',
+              { duration: 5000 }
+            ).onAction().subscribe(() => {
+              window.location.href = `/collections/${collection.id}`;
+            });
+          },
+          error: (err) => {
+            this.snackBar.open(
+              err.error?.detail || 'Error al agregar articulo',
+              'Cerrar',
+              { duration: 5000 }
+            );
+          }
+        });
+      }
+    });
   }
 }

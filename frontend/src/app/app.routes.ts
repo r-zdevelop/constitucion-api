@@ -21,6 +21,10 @@ export const routes: Routes = [
       {
         path: 'search',
         loadComponent: () => import('./features/articles/search/article-search.component').then(m => m.ArticleSearchComponent)
+      },
+      {
+        path: 'collections',
+        loadChildren: () => import('./features/collections/collections.routes').then(m => m.COLLECTIONS_ROUTES)
       }
     ]
   },

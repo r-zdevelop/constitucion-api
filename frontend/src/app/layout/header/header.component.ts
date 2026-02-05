@@ -45,6 +45,12 @@ import { AuthService } from '@app/core/auth/services/auth.service';
           <mat-icon>search</mat-icon>
           <span>Buscar</span>
         </a>
+        @if (authService.isAuthenticated()) {
+          <a mat-button routerLink="/collections" routerLinkActive="active">
+            <mat-icon>folder</mat-icon>
+            <span>Colecciones</span>
+          </a>
+        }
       </nav>
 
       <span class="spacer"></span>
@@ -109,6 +115,12 @@ import { AuthService } from '@app/core/auth/services/auth.service';
         <mat-icon>search</mat-icon>
         <span>Buscar</span>
       </a>
+      @if (authService.isAuthenticated()) {
+        <a mat-menu-item routerLink="/collections">
+          <mat-icon>folder</mat-icon>
+          <span>Colecciones</span>
+        </a>
+      }
       @if (!authService.isAuthenticated()) {
         <mat-divider></mat-divider>
         <a mat-menu-item routerLink="/auth/login">

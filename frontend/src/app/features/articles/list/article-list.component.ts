@@ -1,13 +1,13 @@
-import { Component, OnInit, inject, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { FormsModule } from '@angular/forms';
 import { ArticleService } from '@app/core/services/article.service';
 import { ChapterService } from '@app/core/services/chapter.service';
 import { ArticleCardComponent } from '@app/shared/components/article-card/article-card.component';
+import { PaginatorComponent, PageChangeEvent } from '@app/shared/components/paginator/paginator.component';
 
 @Component({
   selector: 'app-article-list',
@@ -17,8 +17,8 @@ import { ArticleCardComponent } from '@app/shared/components/article-card/articl
     MatSelectModule,
     MatFormFieldModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule,
-    ArticleCardComponent
+    ArticleCardComponent,
+    PaginatorComponent
   ],
   template: `
     <div class="article-list-container">
@@ -51,14 +51,11 @@ import { ArticleCardComponent } from '@app/shared/components/article-card/articl
         </div>
 
         @if (articleService.pagination(); as pagination) {
-          <mat-paginator
-            [length]="pagination.total"
-            [pageSize]="pagination.itemsPerPage"
-            [pageIndex]="pagination.currentPage - 1"
+          <app-paginator
+            [pagination]="pagination"
             [pageSizeOptions]="[5, 10, 25, 50]"
-            (page)="onPageChange($event)"
-            showFirstLastButtons
-          ></mat-paginator>
+            (pageChange)="onPageChange($event)"
+          />
         }
       }
     </div>
@@ -107,7 +104,7 @@ import { ArticleCardComponent } from '@app/shared/components/article-card/articl
       font-size: 1.1rem;
     }
 
-    mat-paginator {
+    app-paginator {
       margin-top: 24px;
     }
 
@@ -182,8 +179,8 @@ export class ArticleListComponent implements OnInit {
     this.updateUrl();
   }
 
-  onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1;
+  onPageChange(event: PageChangeEvent): void {
+    this.currentPage = event.page;
     this.pageSize = event.pageSize;
     this.updateUrl();
   }

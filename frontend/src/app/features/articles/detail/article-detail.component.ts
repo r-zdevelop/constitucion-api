@@ -7,12 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ArticleService } from '@app/core/services/article.service';
-import { CollectionService } from '@app/core/services/collection.service';
 import { AuthService } from '@app/core/auth/services/auth.service';
 import { AddToCollectionDialogComponent } from '@app/features/collections/add-to-collection-dialog/add-to-collection-dialog.component';
-import { Collection } from '@app/models';
 
 @Component({
   selector: 'app-article-detail',
@@ -25,8 +22,7 @@ import { Collection } from '@app/models';
     MatIconModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatDialogModule,
-    MatSnackBarModule
+    MatDialogModule
   ],
   template: `
     <div class="detail-container">
@@ -278,8 +274,6 @@ import { Collection } from '@app/models';
 export class ArticleDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-  private collectionService = inject(CollectionService);
   articleService = inject(ArticleService);
   authService = inject(AuthService);
 
@@ -320,7 +314,7 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   }
 
   openAddToCollectionDialog(article: { id: string; articleNumber: number }): void {
-    const dialogRef = this.dialog.open(AddToCollectionDialogComponent, {
+    this.dialog.open(AddToCollectionDialogComponent, {
       width: '400px',
       maxWidth: '90vw',
       hasBackdrop: true,
@@ -329,29 +323,6 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
       data: {
         articleId: article.id,
         articleNumber: article.articleNumber
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((collection: Collection | undefined) => {
-      if (collection) {
-        this.collectionService.addArticleToCollection(collection.id, article.id).subscribe({
-          next: () => {
-            this.snackBar.open(
-              `Articulo agregado a "${collection.name}"`,
-              'Ver coleccion',
-              { duration: 5000 }
-            ).onAction().subscribe(() => {
-              window.location.href = `/collections/${collection.id}`;
-            });
-          },
-          error: (err) => {
-            this.snackBar.open(
-              err.error?.detail || 'Error al agregar articulo',
-              'Cerrar',
-              { duration: 5000 }
-            );
-          }
-        });
       }
     });
   }

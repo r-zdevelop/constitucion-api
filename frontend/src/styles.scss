@@ -72,9 +72,29 @@ body {
   border-radius: 2px;
 }
 
-.error-snackbar {
-  --mdc-snackbar-container-color: #f44336;
+// Custom snackbar styles
+.success-snackbar {
+  --mdc-snackbar-container-color: #2e3b4e;
   --mdc-snackbar-supporting-text-color: white;
+
+  .mdc-snackbar__surface {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+  }
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #d32f2f;
+  --mdc-snackbar-supporting-text-color: white;
+
+  .mdc-snackbar__surface {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  .snackbar-icon mat-icon {
+    color: #ffcdd2 !important;
+  }
 }
 
 a {
@@ -102,4 +122,14 @@ a:hover {
 
 .cdk-overlay-dark-backdrop {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+// Ensure Material menus have proper styling
+.mat-mdc-menu-panel {
+  background-color: white !important;
+  --mat-menu-container-color: white;
+}
+
+.mat-mdc-menu-content {
+  background-color: white !important;
 }

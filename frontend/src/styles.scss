@@ -106,7 +106,11 @@ a:hover {
   text-decoration: none;
 }
 
-// Ensure Material dialogs have proper styling
+// Ensure Material overlays render above sticky header (z-index: 1000)
+.cdk-overlay-container {
+  z-index: 1100 !important;
+}
+
 .cdk-overlay-pane {
   max-width: 90vw !important;
 }

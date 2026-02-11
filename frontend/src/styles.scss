@@ -1,4 +1,3 @@
-
 // Include theming for Angular Material with `mat.theme()`.
 // This Sass mixin will define CSS variables that are used for styling Angular Material
 // components according to the Material 3 design spec.
@@ -28,14 +27,12 @@ $lexecuador-primary: (
 
 html {
   height: 100%;
-  @include mat.theme((
-    color: (
-      primary: $lexecuador-primary,
-      tertiary: $lexecuador-primary,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.theme((color: (primary: $lexecuador-primary,
+        tertiary: $lexecuador-primary,
+      ),
+      typography: Roboto,
+      density: 0,
+    ));
 }
 
 body {
@@ -55,6 +52,7 @@ body {
   margin: 0;
   height: 100%;
 }
+
 /* You can add global styles to this file, and also import other style files */
 
 // CSS custom properties for easy access to palette colors
@@ -72,29 +70,34 @@ body {
   border-radius: 2px;
 }
 
-// Custom snackbar styles
-.success-snackbar {
-  --mdc-snackbar-container-color: #2e3b4e;
-  --mdc-snackbar-supporting-text-color: white;
-
-  .mdc-snackbar__surface {
-    border-radius: 12px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
-  }
+// Base snackbar styles - force solid background (M3 theme fix)
+.mdc-snackbar__surface {
+  background-color: #175a6c !important; // --lex-color-dark
+  color: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
 }
 
-.error-snackbar {
-  --mdc-snackbar-container-color: #d32f2f;
-  --mdc-snackbar-supporting-text-color: white;
+.mdc-snackbar__label {
+  color: white !important;
+}
 
-  .mdc-snackbar__surface {
-    border-radius: 12px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
-  }
+.mat-mdc-snack-bar-action .mdc-button__label {
+  color: #d4e8e8 !important;
+}
 
-  .snackbar-icon mat-icon {
-    color: #ffcdd2 !important;
-  }
+// Custom snackbar styles
+.success-snackbar .mdc-snackbar__surface {
+  background-color: #2e3b4e !important;
+}
+
+.error-snackbar .mdc-snackbar__surface {
+  // background-color: #d32f2f !important;
+  background-color: #2e3b4e !important;
+}
+
+.error-snackbar .snackbar-icon mat-icon {
+  color: #ffcdd2 !important;
 }
 
 a {
@@ -106,9 +109,14 @@ a:hover {
   text-decoration: none;
 }
 
-// Ensure Material overlays render above sticky header (z-index: 1000)
+// Ensure Material overlays render above sticky header (z-index: 100)
 .cdk-overlay-container {
-  z-index: 1100 !important;
+  z-index: 1000 !important;
+}
+
+// Ensure Material overlay panels have solid backgrounds (M3 theme fix)
+.mat-mdc-select-panel {
+  background-color: white !important;
 }
 
 .cdk-overlay-pane {

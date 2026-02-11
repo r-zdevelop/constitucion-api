@@ -138,7 +138,7 @@ import { AuthService } from '@app/core/auth/services/auth.service';
     mat-toolbar {
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 100;
       gap: 8px;
     }
 
